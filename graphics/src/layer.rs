@@ -56,8 +56,10 @@ impl<'a> Layer<'a> {
     ///
     /// [`Layer`]: struct.Layer.html
     pub fn overlay(lines: &'a [impl AsRef<str>], viewport: &Viewport) -> Self {
-        let mut overlay =
-            Layer::new(Rectangle::with_size(viewport.logical_size()));
+        let mut overlay = Layer::new(Rectangle::new(
+            viewport.logical_position(),
+            viewport.logical_size(),
+        ));
 
         for (i, line) in lines.iter().enumerate() {
             let text = Text {
@@ -93,12 +95,19 @@ impl<'a> Layer<'a> {
         primitive: &'a Primitive,
         viewport: &Viewport,
     ) -> Vec<Self> {
-        let first_layer =
-            Layer::new(Rectangle::with_size(viewport.logical_size()));
+        let first_layer = Layer::new(Rectangle::new(
+            viewport.logical_position(),
+            viewport.logical_size(),
+        ));
 
         let mut layers = vec![first_layer];
 
-        Self::process_primitive(&mut layers, Vector::new(0.0, 0.0), primitive);
+        let position = viewport.logical_position();
+        Self::process_primitive(
+            &mut layers,
+            Vector::new(position.x, position.y),
+            primitive,
+        );
 
         layers
     }
